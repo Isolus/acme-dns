@@ -11,9 +11,9 @@ import (
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	_ "modernc.org/sqlite"
 )
 
 // DBVersion shows the database version this code uses. This is used for update checks.
@@ -70,7 +70,7 @@ func (d *acmedb) Init(engine string, connection string) error {
 	}
 	_, _ = d.DB.Exec(acmeTable)
 	_, _ = d.DB.Exec(userTable)
-	if Config.Database.Engine == "sqlite3" {
+	if Config.Database.Engine == "sqlite" {
 		_, _ = d.DB.Exec(txtTable)
 	} else {
 		_, _ = d.DB.Exec(txtTablePG)
@@ -153,7 +153,7 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 		}
 	}
 	// SQLite doesn't support dropping columns
-	if Config.Database.Engine != "sqlite3" {
+	if Config.Database.Engine != "sqlite" {
 		_, _ = tx.Exec("ALTER TABLE records DROP COLUMN IF EXISTS Value")
 		_, _ = tx.Exec("ALTER TABLE records DROP COLUMN IF EXISTS LastActive")
 	}
@@ -193,7 +193,7 @@ func (d *acmedb) Register(afrom cidrslice) (ACMETxt, error) {
         Subdomain,
 		AllowFrom) 
         values($1, $2, $3, $4)`
-	if Config.Database.Engine == "sqlite3" {
+	if Config.Database.Engine == "sqlite" {
 		regSQL = getSQLiteStmt(regSQL)
 	}
 	sm, err := tx.Prepare(regSQL)
@@ -218,7 +218,7 @@ func (d *acmedb) GetByUsername(u uuid.UUID) (ACMETxt, error) {
 	FROM records
 	WHERE Username=$1 LIMIT 1
 	`
-	if Config.Database.Engine == "sqlite3" {
+	if Config.Database.Engine == "sqlite" {
 		getSQL = getSQLiteStmt(getSQL)
 	}
 
@@ -255,7 +255,7 @@ func (d *acmedb) GetTXTForDomain(domain string) ([]string, error) {
 	getSQL := `
 	SELECT Value FROM txt WHERE Subdomain=$1 LIMIT 2
 	`
-	if Config.Database.Engine == "sqlite3" {
+	if Config.Database.Engine == "sqlite" {
 		getSQL = getSQLiteStmt(getSQL)
 	}
 
@@ -293,7 +293,7 @@ func (d *acmedb) Update(a ACMETxtPost) error {
 	WHERE rowid=(
 		SELECT rowid FROM txt WHERE Subdomain=$3 ORDER BY LastUpdate LIMIT 1)
 	`
-	if Config.Database.Engine == "sqlite3" {
+	if Config.Database.Engine == "sqlite" {
 		updSQL = getSQLiteStmt(updSQL)
 	}
 

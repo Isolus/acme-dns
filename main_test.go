@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
 
 var loghook = new(logrustest.Hook)
@@ -40,8 +41,8 @@ func TestMain(m *testing.M) {
 			os.Exit(1)
 		}
 	} else {
-		Config.Database.Engine = "sqlite3"
-		_ = newDb.Init("sqlite3", ":memory:")
+		Config.Database.Engine = "sqlite"
+		_ = newDb.Init("sqlite", ":memory:")
 	}
 	DB = newDb
 	dnsserver = NewDNSServer(DB, Config.General.Listen, Config.General.Proto, Config.General.Domain)
@@ -63,7 +64,7 @@ func TestMain(m *testing.M) {
 
 func setupConfig() {
 	var dbcfg = dbsettings{
-		Engine:     "sqlite3",
+		Engine:     "sqlite",
 		Connection: ":memory:",
 	}
 

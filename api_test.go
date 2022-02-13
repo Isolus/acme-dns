@@ -49,7 +49,7 @@ func getExpect(t *testing.T, server *httptest.Server) *httpexpect.Expect {
 func setupRouter(debug bool, noauth bool) http.Handler {
 	api := httprouter.New()
 	var dbcfg = dbsettings{
-		Engine:     "sqlite3",
+		Engine:     "sqlite",
 		Connection: ":memory:"}
 	var httpapicfg = httpapi{
 		Domain:      "",
